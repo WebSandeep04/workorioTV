@@ -8,8 +8,8 @@ interface LoginScreenProps {
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onNavigate }) => {
-  const [loginId, setLoginId] = useState('');
-  const [password, setPassword] = useState('');
+  const [loginId, setLoginId] = useState('shamshad@triserv360.com');
+  const [password, setPassword] = useState('12345678');
   const [isLoading, setIsLoading] = useState(false);
 
   const loginIdRef = useRef<TextInput>(null);
@@ -53,7 +53,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onNavigate }) => {
           </Text>
           <Text style={styles.subtitle}>Welcome back. Please sign in to continue.</Text>
         </View>
-        
+
         <Text style={styles.label}>Login ID</Text>
         <TextInput
           ref={loginIdRef}
@@ -110,14 +110,14 @@ const styles = StyleSheet.create({
     width: '45%',
     backgroundColor: '#111111', // Very dark charcoal
     paddingHorizontal: 56,
-    paddingVertical: 64,
+    paddingVertical: 32,
     borderRadius: 32,
     borderWidth: 1,
     borderColor: '#222222',
   },
   headerContainer: {
     alignItems: 'center',
-    marginBottom: 56,
+    marginBottom: 24,
   },
   title: {
     fontSize: 48,
@@ -148,18 +148,18 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     paddingHorizontal: 24,
-    paddingVertical: 20,
+    paddingVertical: 14,
     borderRadius: 16, // Smoother rounded corners
-    marginBottom: 32,
+    marginBottom: 16,
     borderWidth: 1,
     borderColor: '#333333',
   },
   button: {
     backgroundColor: '#0066FF',
-    paddingVertical: 20,
+    paddingVertical: 16,
     borderRadius: 100, // Pill shaped
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 8,
   },
   buttonText: {
     color: '#FFFFFF',

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = 'http://192.168.1.24:8000/api/'; // This should be configured via environment variables ideally
+const API_BASE_URL = 'https://app.workorio.com/api/'; // This should be configured via environment variables ideally
 
 const api = axios.create({
   baseURL: API_BASE_URL,

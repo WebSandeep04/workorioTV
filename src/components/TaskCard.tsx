@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 interface Task {
-  id: number;
+  id: number | string;
   title?: string;
   description?: string;
   task_name?: string;
@@ -10,6 +10,9 @@ interface Task {
   status: any;
   priority: any;
   due_date: string;
+  created_at?: string;
+  customer?: { name: string };
+  is_immediate?: boolean;
 }
 
 interface TaskCardProps {
@@ -34,10 +37,43 @@ const formatDate = (dateString: string) => {
   return dateString.split('T')[0];
 };
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
-  const statusName = getStatusName(task.status);
-  const priorityName = getPriorityName(task.priority);
+const getDaysCount = (createdAt?: string) => {
+  if (!createdAt) return 0;
+  const diffTime = Math.abs(new Date().getTime() - new Date(createdAt).getTime());
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+};
 
+const renderDueDate = (dueDate?: string) => {
+  if (!dueDate || dueDate === 'N/A') return <Text style={styles.dateText}>N/A</Text>;
+  
+  const due = new Date(dueDate);
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  
+  const isToday = due.toDateString() === today.toDateString() || due < today;
+  const isTomorrow = due.toDateString() === tomorrow.toDateString();
+
+  if (isToday) {
+    return (
+      <View style={[styles.dateBadge, { backgroundColor: '#DC3545' }]}>
+        <Text style={styles.badgeText}>TODAY</Text>
+      </View>
+    );
+  }
+  
+  if (isTomorrow) {
+    return (
+      <View style={[styles.dateBadge, { backgroundColor: '#FFC107' }]}>
+        <Text style={styles.badgeText}>TOMORROW</Text>
+      </View>
+    );
+  }
+  
+  return null;
+};
+
+const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
   return (
     <TouchableOpacity 
       style={styles.row} 
@@ -50,20 +86,24 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
         <Text style={styles.description} numberOfLines={1}>{task.description || task.task}</Text>
       </View>
       
-      <View style={[styles.cell, { flex: 1 }]}>
-        <Text style={[styles.priorityText, getPriorityStyle(priorityName)]}>
-          {priorityName}
+      <View style={[styles.cell, { flex: 1.5 }]}>
+        <Text style={styles.customerText} numberOfLines={1}>
+          {task.customer?.name || 'N/A'}
         </Text>
       </View>
-      
+
       <View style={[styles.cell, { flex: 1, alignItems: 'center' }]}>
-        <View style={[styles.badge, getStatusStyle(statusName)]}>
-          <Text style={styles.badgeText}>{statusName}</Text>
+        <View style={[styles.typeBadge, task.is_immediate ? styles.immediateBadge : styles.assignedBadge]}>
+          <Text style={styles.typeBadgeText}>{task.is_immediate ? 'IMMEDIATE' : 'ASSIGNED'}</Text>
         </View>
+      </View>
+
+      <View style={[styles.cell, { flex: 1, alignItems: 'center' }]}>
+        <Text style={styles.ageText}>{getDaysCount(task.created_at)}</Text>
       </View>
       
       <View style={[styles.cell, { flex: 1, alignItems: 'flex-end' }]}>
-        <Text style={styles.dateText}>{formatDate(task.due_date)}</Text>
+        {renderDueDate(task.due_date)}
       </View>
     </TouchableOpacity>
   );
@@ -93,36 +133,63 @@ const styles = StyleSheet.create({
     backgroundColor: '#2A2A2A',
     borderBottomWidth: 1,
     borderBottomColor: '#444',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
     alignItems: 'center',
   },
   cell: {
     justifyContent: 'center',
   },
   title: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#FFFFFF',
     marginBottom: 2,
+    flexShrink: 1,
   },
   description: {
-    fontSize: 13,
+    fontSize: 11,
     color: '#BBBBBB',
   },
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+  customerText: {
+    fontSize: 11,
+    color: '#88CCFF',
+  },
+  ageText: {
+    fontSize: 11,
+    color: '#FFFFFF',
+  },
+  typeBadge: {
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  immediateBadge: {
+    backgroundColor: '#FF4C4C',
+  },
+  assignedBadge: {
+    backgroundColor: '#4D94FF',
+  },
+  typeBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 8,
+    fontWeight: 'bold',
+  },
+  dateBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   badgeText: {
     color: '#FFFFFF',
-    fontSize: 11,
+    fontSize: 9,
     fontWeight: 'bold',
     textTransform: 'uppercase',
   },
   dateText: {
-    fontSize: 14,
+    fontSize: 11,
     color: '#FFFFFF',
   },
   priorityText: {
