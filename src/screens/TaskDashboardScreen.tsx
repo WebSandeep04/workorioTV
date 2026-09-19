@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../services/api';
 import TaskCard from '../components/TaskCard';
@@ -16,6 +16,8 @@ const TaskDashboardScreen: React.FC<TaskDashboardScreenProps> = ({ onNavigate })
   const [immediateTasks, setImmediateTasks] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
+  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
 
   const fetchTasks = async () => {
     setIsLoading(true);
@@ -45,6 +47,7 @@ const TaskDashboardScreen: React.FC<TaskDashboardScreenProps> = ({ onNavigate })
       
       setTasks(activeTasks);
       setImmediateTasks([]);
+      setLastSyncTime(new Date());
     } catch (error: any) {
       console.error('Error fetching tasks:', error);
       Alert.alert('Error', 'Failed to fetch tasks');
@@ -99,11 +102,18 @@ const TaskDashboardScreen: React.FC<TaskDashboardScreenProps> = ({ onNavigate })
         </View>
 
         <View style={styles.headerCenterContainer}>
-          <Text style={styles.subtitle}>
-            {allTasks.length} Total | Page {totalPages > 0 ? currentPage + 1 : 0} of {totalPages}
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+            <Text style={styles.subtitle}>Total Tasks: {allTasks.length}</Text>
+            <View style={{ width: 1, height: 14, backgroundColor: '#888' }} />
+            <Text style={styles.subtitle}>Page: {totalPages > 0 ? currentPage + 1 : 0} of {totalPages}</Text>
+          </View>
         </View>
         <View style={styles.headerRightContainer}>
+          {lastSyncTime && (
+            <Text style={{ color: '#AAAAAA', fontSize: 11, marginRight: 4 }}>
+              Sync: {lastSyncTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </Text>
+          )}
           <TouchableOpacity 
             style={styles.syncIconButton} 
             onPress={fetchTasks}
@@ -131,20 +141,59 @@ const TaskDashboardScreen: React.FC<TaskDashboardScreenProps> = ({ onNavigate })
       ) : (
         <View style={styles.tableContainer}>
           <View style={styles.tableHeader}>
-            <Text style={[styles.headerText, { flex: 3 }]}>Task Info</Text>
-            <Text style={[styles.headerText, { flex: 1.5 }]}>Customer</Text>
-            <Text style={[styles.headerText, { flex: 1, textAlign: 'center' }]}>Type</Text>
-            <Text style={[styles.headerText, { flex: 1, textAlign: 'center' }]}>Active Days</Text>
-            <Text style={[styles.headerText, { flex: 1, textAlign: 'right' }]}>Due Date</Text>
+            <Text style={[styles.headerText, { flex: 1.5 }]}>Task Title</Text>
+            <Text style={[styles.headerText, { flex: 3 }]}>Description</Text>
+            <Text style={[styles.headerText, { flex: 1 }]}>Assigned To</Text>
+            <Text style={[styles.headerText, { flex: 1 }]}>Customer</Text>
+            <Text style={[styles.headerText, { flex: 1, textAlign: 'right' }]}>Due Date/Active Day</Text>
           </View>
           <FlatList
             data={displayedTasks}
             keyExtractor={(item, index) => `${item.id}-${index}`}
             numColumns={1}
-            renderItem={({ item }) => <TaskCard task={item} />}
+            renderItem={({ item }) => <TaskCard task={item} onPress={() => setSelectedTask(item)} />}
             contentContainerStyle={styles.listContainer}
           />
         </View>
+      )}
+
+      {selectedTask && (
+        <Modal
+          visible={!!selectedTask}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setSelectedTask(null)}
+        >
+          <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPressOut={() => setSelectedTask(null)}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalHeader}>Task Details</Text>
+              <ScrollView style={styles.modalScroll}>
+                <Text style={styles.modalLabel}>Title:</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={[
+                    { width: 20, height: 20, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginRight: 8 },
+                    selectedTask.is_immediate ? { backgroundColor: '#FF4C4C' } : { backgroundColor: '#4D94FF' }
+                  ]}>
+                    <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 12 }}>
+                      {selectedTask.is_immediate ? 'I' : 'A'}
+                    </Text>
+                  </View>
+                  <Text style={[styles.modalText, { flex: 1 }]}>
+                    {selectedTask.title || selectedTask.task_name}
+                  </Text>
+                </View>
+                
+                <Text style={[styles.modalLabel, { marginTop: 12 }]}>Description:</Text>
+                <Text style={styles.modalText}>
+                  {selectedTask.description || selectedTask.task}
+                </Text>
+              </ScrollView>
+              <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedTask(null)}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </Modal>
       )}
     </View>
   );
@@ -189,8 +238,9 @@ const styles = StyleSheet.create({
     color: '#0066FF',
   },
   subtitle: {
-    fontSize: 12,
-    color: '#AAAAAA',
+    fontSize: 13,
+    color: '#FFFFFF',
+    fontWeight: '500',
   },
   logoutButton: {
     backgroundColor: '#DC3545',
@@ -244,6 +294,54 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#1E1E1E',
+    borderRadius: 8,
+    padding: 20,
+    width: '60%',
+    maxHeight: '80%',
+    borderWidth: 1,
+    borderColor: '#333',
+  },
+  modalHeader: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
+    paddingBottom: 8,
+  },
+  modalScroll: {
+    marginBottom: 16,
+  },
+  modalLabel: {
+    fontSize: 14,
+    color: '#AAAAAA',
+    marginBottom: 4,
+  },
+  modalText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    lineHeight: 24,
+  },
+  closeButton: {
+    backgroundColor: '#0066FF',
+    paddingVertical: 10,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 

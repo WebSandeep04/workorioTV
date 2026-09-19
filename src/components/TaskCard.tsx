@@ -12,6 +12,7 @@ interface Task {
   due_date: string;
   created_at?: string;
   customer?: { name: string };
+  user?: { name: string };
   is_immediate?: boolean;
 }
 
@@ -43,10 +44,15 @@ const getDaysCount = (createdAt?: string) => {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 };
 
-const renderDueDate = (dueDate?: string) => {
-  if (!dueDate || dueDate === 'N/A') return <Text style={styles.dateText}>N/A</Text>;
+const renderDueDate = (task: Task) => {
+  const activeDays = getDaysCount(task.created_at);
+  const suffix = `/${activeDays}`;
+
+  if (!task.due_date || task.due_date === 'N/A') {
+    return <Text style={styles.dateText}>N/A{suffix}</Text>;
+  }
   
-  const due = new Date(dueDate);
+  const due = new Date(task.due_date);
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -57,7 +63,7 @@ const renderDueDate = (dueDate?: string) => {
   if (isToday) {
     return (
       <View style={[styles.dateBadge, { backgroundColor: '#DC3545' }]}>
-        <Text style={styles.badgeText}>TODAY</Text>
+        <Text style={styles.badgeText}>Today{suffix}</Text>
       </View>
     );
   }
@@ -65,12 +71,12 @@ const renderDueDate = (dueDate?: string) => {
   if (isTomorrow) {
     return (
       <View style={[styles.dateBadge, { backgroundColor: '#FFC107' }]}>
-        <Text style={styles.badgeText}>TOMORROW</Text>
+        <Text style={styles.badgeText}>Tomorrow{suffix}</Text>
       </View>
     );
   }
   
-  return null;
+  return <Text style={styles.dateText}>{formatDate(task.due_date)}{suffix}</Text>;
 };
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
@@ -81,29 +87,44 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
       focusable={true}
       activeOpacity={0.8}
     >
-      <View style={[styles.cell, { flex: 3 }]}>
-        <Text style={styles.title} numberOfLines={1}>{task.title || task.task_name}</Text>
-        <Text style={styles.description} numberOfLines={1}>{task.description || task.task}</Text>
-      </View>
-      
-      <View style={[styles.cell, { flex: 1.5 }]}>
-        <Text style={styles.customerText} numberOfLines={1}>
-          {task.customer?.name || 'N/A'}
+      <View style={[styles.cell, { flex: 1.5, paddingRight: 8, flexDirection: 'row', alignItems: 'center' }]}>
+        <View style={[styles.circleBadge, task.is_immediate ? styles.immediateBadge : styles.assignedBadge]}>
+          <Text style={styles.circleBadgeText}>{task.is_immediate ? 'I' : 'A'}</Text>
+        </View>
+        <Text style={[styles.title, { flex: 1, marginLeft: 6 }]} numberOfLines={1}>
+          {(() => {
+            const title = task.title || task.task_name || '';
+            return title.length > 25 ? title.substring(0, 25) + '...' : title;
+          })()}
         </Text>
       </View>
 
-      <View style={[styles.cell, { flex: 1, alignItems: 'center' }]}>
-        <View style={[styles.typeBadge, task.is_immediate ? styles.immediateBadge : styles.assignedBadge]}>
-          <Text style={styles.typeBadgeText}>{task.is_immediate ? 'IMMEDIATE' : 'ASSIGNED'}</Text>
-        </View>
+      <View style={[styles.cell, { flex: 3, paddingRight: 8 }]}>
+        <Text style={styles.description} numberOfLines={2}>
+          {(() => {
+            const desc = task.description || task.task || '';
+            return desc.length > 45 ? desc.substring(0, 45) + '...' : desc;
+          })()}
+        </Text>
       </View>
 
-      <View style={[styles.cell, { flex: 1, alignItems: 'center' }]}>
-        <Text style={styles.ageText}>{getDaysCount(task.created_at)}</Text>
+      <View style={[styles.cell, { flex: 1 }]}>
+        <Text style={styles.customerText} numberOfLines={1}>
+          {task.user?.name || 'Unassigned'}
+        </Text>
       </View>
       
-      <View style={[styles.cell, { flex: 1, alignItems: 'flex-end' }]}>
-        {renderDueDate(task.due_date)}
+      <View style={[styles.cell, { flex: 1 }]}>
+        <Text style={styles.customerText} numberOfLines={1}>
+          {(() => {
+            const name = task.customer?.name || 'N/A';
+            return name.length > 8 ? name.substring(0, 8) + '...' : name;
+          })()}
+        </Text>
+      </View>
+
+      <View style={[styles.cell, { flex: 1, alignItems: 'flex-end', justifyContent: 'center' }]}>
+        {renderDueDate(task)}
       </View>
     </TouchableOpacity>
   );
@@ -149,7 +170,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 11,
-    color: '#BBBBBB',
+    color: '#FFFFFF',
   },
   customerText: {
     fontSize: 11,
@@ -184,9 +205,8 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     color: '#FFFFFF',
-    fontSize: 9,
+    fontSize: 10,
     fontWeight: 'bold',
-    textTransform: 'uppercase',
   },
   dateText: {
     fontSize: 11,
@@ -194,6 +214,18 @@ const styles = StyleSheet.create({
   },
   priorityText: {
     fontSize: 14,
+    fontWeight: 'bold',
+  },
+  circleBadge: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  circleBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
     fontWeight: 'bold',
   },
 });
