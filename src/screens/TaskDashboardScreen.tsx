@@ -24,7 +24,7 @@ const TaskDashboardScreen: React.FC<TaskDashboardScreenProps> = ({ onNavigate })
     try {
       const response = await api.get('tasks/tv');
       const fetchedTasks = response.data?.tasks || response.data || [];
-      
+
       const activeTasks = (Array.isArray(fetchedTasks) ? fetchedTasks : []).filter((task: any) => {
         const statusName = task.status?.name || task.status;
         if (typeof statusName === 'string' && statusName.toLowerCase() === 'completed') {
@@ -44,7 +44,7 @@ const TaskDashboardScreen: React.FC<TaskDashboardScreenProps> = ({ onNavigate })
 
         return isTodayOrPast || isTomorrow;
       });
-      
+
       setTasks(activeTasks);
       setImmediateTasks([]);
       setLastSyncTime(new Date());
@@ -88,7 +88,7 @@ const TaskDashboardScreen: React.FC<TaskDashboardScreenProps> = ({ onNavigate })
 
   const allTasks = [...immediateTasks, ...tasks];
   const totalPages = Math.ceil(allTasks.length / ITEMS_PER_PAGE);
-  
+
   const startIndex = currentPage * ITEMS_PER_PAGE;
   const displayedTasks = allTasks.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
@@ -114,8 +114,8 @@ const TaskDashboardScreen: React.FC<TaskDashboardScreenProps> = ({ onNavigate })
               Sync: {lastSyncTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </Text>
           )}
-          <TouchableOpacity 
-            style={styles.syncIconButton} 
+          <TouchableOpacity
+            style={styles.syncIconButton}
             onPress={fetchTasks}
             disabled={isLoading}
             focusable={true}
@@ -123,8 +123,8 @@ const TaskDashboardScreen: React.FC<TaskDashboardScreenProps> = ({ onNavigate })
             <Text style={styles.syncIconText}>↻</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.logoutButton} 
+          <TouchableOpacity
+            style={styles.logoutButton}
             onPress={handleLogout}
             focusable={true}
           >
@@ -182,7 +182,7 @@ const TaskDashboardScreen: React.FC<TaskDashboardScreenProps> = ({ onNavigate })
                     {selectedTask.title || selectedTask.task_name}
                   </Text>
                 </View>
-                
+
                 <Text style={[styles.modalLabel, { marginTop: 12 }]}>Description:</Text>
                 <Text style={styles.modalText}>
                   {selectedTask.description || selectedTask.task}
@@ -202,7 +202,7 @@ const TaskDashboardScreen: React.FC<TaskDashboardScreenProps> = ({ onNavigate })
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',
@@ -210,9 +210,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: '#1E1E1E',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    borderBottomColor: 'rgba(255, 255, 255, 0.2)',
   },
   headerTitleContainer: {
     flexDirection: 'row',
@@ -263,11 +263,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: '#1E1E1E',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderTopLeftRadius: 6,
     borderTopRightRadius: 6,
     borderBottomWidth: 1,
-    borderBottomColor: '#007AFF',
+    borderBottomColor: 'rgba(255, 255, 255, 0.25)',
   },
   headerText: {
     color: '#FFFFFF',
@@ -302,13 +302,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#1E1E1E',
+    backgroundColor: 'rgba(25, 25, 25, 0.9)',
     borderRadius: 8,
     padding: 20,
     width: '60%',
     maxHeight: '80%',
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: 'rgba(255, 255, 255, 0.25)',
   },
   modalHeader: {
     fontSize: 20,
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    borderBottomColor: 'rgba(255, 255, 255, 0.2)',
     paddingBottom: 8,
   },
   modalScroll: {

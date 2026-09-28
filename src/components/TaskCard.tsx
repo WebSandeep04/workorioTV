@@ -51,12 +51,12 @@ const renderDueDate = (task: Task) => {
   if (!task.due_date || task.due_date === 'N/A') {
     return <Text style={styles.dateText}>N/A{suffix}</Text>;
   }
-  
+
   const due = new Date(task.due_date);
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
-  
+
   const isToday = due.toDateString() === today.toDateString() || due < today;
   const isTomorrow = due.toDateString() === tomorrow.toDateString();
 
@@ -67,7 +67,7 @@ const renderDueDate = (task: Task) => {
       </View>
     );
   }
-  
+
   if (isTomorrow) {
     return (
       <View style={[styles.dateBadge, { backgroundColor: '#FFC107' }]}>
@@ -75,14 +75,14 @@ const renderDueDate = (task: Task) => {
       </View>
     );
   }
-  
+
   return <Text style={styles.dateText}>{formatDate(task.due_date)}{suffix}</Text>;
 };
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
   return (
-    <TouchableOpacity 
-      style={styles.row} 
+    <TouchableOpacity
+      style={styles.row}
       onPress={onPress}
       focusable={true}
       activeOpacity={0.8}
@@ -113,7 +113,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
           {task.user?.name || 'Unassigned'}
         </Text>
       </View>
-      
+
       <View style={[styles.cell, { flex: 1 }]}>
         <Text style={styles.customerText} numberOfLines={1}>
           {(() => {
@@ -151,9 +151,9 @@ const getPriorityStyle = (priority: string) => {
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    backgroundColor: '#2A2A2A',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderBottomWidth: 1,
-    borderBottomColor: '#444',
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
     paddingVertical: 6,
     paddingHorizontal: 12,
     alignItems: 'center',
