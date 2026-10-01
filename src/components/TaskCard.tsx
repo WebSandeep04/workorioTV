@@ -14,6 +14,7 @@ interface Task {
   customer?: { name: string };
   user?: { name: string };
   is_immediate?: boolean;
+  is_ai?: boolean;
 }
 
 interface TaskCardProps {
@@ -88,8 +89,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
       activeOpacity={0.8}
     >
       <View style={[styles.cell, { flex: 1.5, paddingRight: 8, flexDirection: 'row', alignItems: 'center' }]}>
-        <View style={[styles.circleBadge, task.is_immediate ? styles.immediateBadge : styles.assignedBadge]}>
-          <Text style={styles.circleBadgeText}>{task.is_immediate ? 'I' : 'A'}</Text>
+        <View style={[styles.circleBadge, task.is_immediate ? styles.immediateBadge : (task.is_ai ? styles.aiBadge : styles.assignedBadge)]}>
+          <Text style={styles.circleBadgeText}>{task.is_immediate ? 'I' : (task.is_ai ? 'AI' : 'A')}</Text>
         </View>
         <Text style={[styles.title, { flex: 1, marginLeft: 6 }]} numberOfLines={1}>
           {(() => {
@@ -190,6 +191,9 @@ const styles = StyleSheet.create({
   },
   assignedBadge: {
     backgroundColor: '#4D94FF',
+  },
+  aiBadge: {
+    backgroundColor: '#9B59B6',
   },
   typeBadgeText: {
     color: '#FFFFFF',

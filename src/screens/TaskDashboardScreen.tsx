@@ -5,7 +5,7 @@ import api from '../services/api';
 import TaskCard from '../components/TaskCard';
 
 const ITEMS_PER_PAGE = 15;
-const AUTO_PAGINATE_INTERVAL = 15000; // 15 seconds
+const AUTO_PAGINATE_INTERVAL = 30000; // 30 seconds
 
 interface TaskDashboardScreenProps {
   onNavigate: (screen: 'Login' | 'Dashboard') => void;
@@ -101,11 +101,30 @@ const TaskDashboardScreen: React.FC<TaskDashboardScreenProps> = ({ onNavigate })
           </Text>
         </View>
 
-        <View style={styles.headerCenterContainer}>
+        <View style={styles.headerCenterContainer} pointerEvents="box-none">
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
             <Text style={styles.subtitle}>Total Tasks: {allTasks.length}</Text>
             <View style={{ width: 1, height: 14, backgroundColor: '#888' }} />
-            <Text style={styles.subtitle}>Page: {totalPages > 0 ? currentPage + 1 : 0} of {totalPages}</Text>
+            
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <TouchableOpacity 
+                style={styles.pageBtn} 
+                onPress={() => setCurrentPage(p => Math.max(0, p - 1))}
+                disabled={currentPage === 0}
+              >
+                <Text style={styles.pageBtnText}>{'<'}</Text>
+              </TouchableOpacity>
+              
+              <Text style={styles.subtitle}>Page: {totalPages > 0 ? currentPage + 1 : 0} of {totalPages}</Text>
+              
+              <TouchableOpacity 
+                style={styles.pageBtn} 
+                onPress={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+                disabled={currentPage >= totalPages - 1}
+              >
+                <Text style={styles.pageBtnText}>{'>'}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
         <View style={styles.headerRightContainer}>
@@ -172,10 +191,10 @@ const TaskDashboardScreen: React.FC<TaskDashboardScreenProps> = ({ onNavigate })
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <View style={[
                     { width: 20, height: 20, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginRight: 8 },
-                    selectedTask.is_immediate ? { backgroundColor: '#FF4C4C' } : { backgroundColor: '#4D94FF' }
+                    selectedTask.is_immediate ? { backgroundColor: '#FF4C4C' } : (selectedTask.is_ai ? { backgroundColor: '#9B59B6' } : { backgroundColor: '#4D94FF' })
                   ]}>
                     <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 12 }}>
-                      {selectedTask.is_immediate ? 'I' : 'A'}
+                      {selectedTask.is_immediate ? 'I' : (selectedTask.is_ai ? 'AI' : 'A')}
                     </Text>
                   </View>
                   <Text style={[styles.modalText, { flex: 1 }]}>
@@ -227,7 +246,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
-    pointerEvents: 'none',
+    pointerEvents: 'box-none',
+  },
+  pageBtn: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  pageBtnText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+    lineHeight: 18,
   },
   title: {
     fontSize: 18,
