@@ -194,7 +194,7 @@ const TaskDashboardScreen: React.FC<TaskDashboardScreenProps> = ({ onNavigate })
                     selectedTask.is_immediate ? { backgroundColor: '#FF4C4C' } : (selectedTask.is_ai ? { backgroundColor: '#9B59B6' } : { backgroundColor: '#4D94FF' })
                   ]}>
                     <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 12 }}>
-                      {selectedTask.is_immediate ? 'I' : (selectedTask.is_ai ? 'AI' : 'A')}
+                      {selectedTask.is_immediate ? 'M' : (selectedTask.is_ai ? 'AI' : 'A')}
                     </Text>
                   </View>
                   <Text style={[styles.modalText, { flex: 1 }]}>

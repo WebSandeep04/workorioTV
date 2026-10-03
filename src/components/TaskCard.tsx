@@ -90,7 +90,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
     >
       <View style={[styles.cell, { flex: 1.5, paddingRight: 8, flexDirection: 'row', alignItems: 'center' }]}>
         <View style={[styles.circleBadge, task.is_immediate ? styles.immediateBadge : (task.is_ai ? styles.aiBadge : styles.assignedBadge)]}>
-          <Text style={styles.circleBadgeText}>{task.is_immediate ? 'I' : (task.is_ai ? 'AI' : 'A')}</Text>
+          <Text style={styles.circleBadgeText}>{task.is_immediate ? 'M' : (task.is_ai ? 'AI' : 'A')}</Text>
         </View>
         <Text style={[styles.title, { flex: 1, marginLeft: 6 }]} numberOfLines={1}>
           {(() => {
